@@ -6,6 +6,7 @@ import com.sk.skala.myapp.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
@@ -14,9 +15,11 @@ import java.util.Optional;
 // Configuration 기반 수동 Proxy 대신, MetricsAspect(@Aspect/@Around)가 시간 측정을 대신하므로
 // 다시 컴포넌트 스캔으로 등록되는 평범한 @Service Bean으로 되돌린다.
 // @Validated: createUser/updateUser의 @Valid UserRequest 파라미터를 AOP Proxy로 검증
+// 클래스 레벨 readOnly=true: 조회 메소드는 변경 감지/추적을 하지 않아 성능이 좋고, 쓰기가 원천 차단됨
 @Slf4j
 @Service
 @Validated
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -46,6 +49,7 @@ public class UserServiceImpl implements UserService {
 
     // 사용자 추가
     @Override
+    @Transactional
     public User createUser(@Valid UserRequest request) {
         log.info("createUser service called");
         log.debug("saving user: {}", request);
@@ -57,6 +61,7 @@ public class UserServiceImpl implements UserService {
 
     // 사용자 정보 수정
     @Override
+    @Transactional
     public Optional<User> updateUser(long id, @Valid UserRequest request) {
         log.info("updateUser service called");
         log.debug("updating user id: {}, payload: {}", id, request);
@@ -69,6 +74,7 @@ public class UserServiceImpl implements UserService {
 
     // 사용자 삭제
     @Override
+    @Transactional
     public void deleteUser(long id) {
         log.info("deleteUser service called");
         log.debug("deleting user id: {}", id);

@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,4 +21,7 @@ public class User {
     private Long id;
     private String name;
     private String email;
+
+    @Version
+    private Long version; // 낙관적 락(Optimistic Lock) 버전 필드
 }

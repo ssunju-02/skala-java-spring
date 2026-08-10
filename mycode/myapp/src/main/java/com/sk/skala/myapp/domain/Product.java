@@ -13,6 +13,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -52,6 +53,9 @@ public class Product {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private User user; // 이 상품을 등록한 사용자
+
+    @Version
+    private Long version; // 낙관적 락(Optimistic Lock) 버전 필드
 
     @Transient
     private String displayLabel; // "상품명 (상태)" 형태의 표시용 라벨, DB에 저장 안 됨
