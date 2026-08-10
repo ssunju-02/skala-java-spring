@@ -26,4 +26,7 @@ public class ProductRequest {
     private ProductStatus status;
 
     private String description;
+
+    private Long userId;
+    private String userName;
 }

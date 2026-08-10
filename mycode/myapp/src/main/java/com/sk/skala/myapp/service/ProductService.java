@@ -3,6 +3,7 @@ package com.sk.skala.myapp.service;
 import com.sk.skala.myapp.domain.Product;
 import com.sk.skala.myapp.domain.ProductStatus;
 import com.sk.skala.myapp.repository.ProductRepository;
+import com.sk.skala.myapp.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,9 +13,11 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, UserRepository userRepository) {
         this.productRepository = productRepository;
+        this.userRepository = userRepository;
     }
 
     // 전체 상품 목록 조회
@@ -32,19 +35,35 @@ public class ProductService {
         return productRepository.findByStatus(status);
     }
 
-    // 신규 상품 등록
-    public Product createProduct(Product product) {
+    // userId 기반으로 상품 목록 검색
+    public List<Product> getProductsByUserId(Long userId) {
+        return productRepository.findByUserId(userId);
+    }
+
+    // 사용자 이름으로 상품 목록 조회
+    public List<Product> getProductsByUserName(String userName) {
+        return productRepository.findByUserName(userName);
+    }
+
+    // 신규 상품 등록 (userId로 등록한 사용자를 연결)
+    public Product createProduct(Product product, Long userId) {
+        if (userId != null) {
+            userRepository.findById(userId).ifPresent(product::setUser);
+        }
         return productRepository.save(product);
     }
 
     // 기존 상품 정보 수정
-    public Optional<Product> updateProduct(Long id, Product updated) {
+    public Optional<Product> updateProduct(Long id, Product updated, Long userId) {
         return productRepository.findById(id).map(product -> {
             product.setName(updated.getName());
             product.setPrice(updated.getPrice());
             product.setStockQuantity(updated.getStockQuantity());
             product.setStatus(updated.getStatus());
             product.setDescription(updated.getDescription());
+            if (userId != null) {
+                userRepository.findById(userId).ifPresent(product::setUser);
+            }
             return productRepository.save(product);
         });
     }

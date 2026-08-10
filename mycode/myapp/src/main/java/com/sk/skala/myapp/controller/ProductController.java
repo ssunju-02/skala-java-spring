@@ -50,16 +50,34 @@ public class ProductController {
                 .toList();
     }
 
+    // GET /api/products/user?userId=123 - userId 기반 상품 목록 조회
+    @GetMapping(value = "/user", params = "userId")
+    public List<ProductResponse> getProductsByUserId(@RequestParam Long userId) {
+        return productService.getProductsByUserId(userId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    // GET /api/products/user?name=홍길동 - 사용자 이름으로 상품 목록 조회
+    @GetMapping(value = "/user", params = "name")
+    public List<ProductResponse> getProductsByUserName(@RequestParam String name) {
+        return productService.getProductsByUserName(name).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     // POST /api/products - 등록
     @PostMapping
     public ProductResponse createProduct(@Valid @RequestBody ProductRequest request) {
-        return toResponse(productService.createProduct(toEntity(request)));
+        return toResponse(productService.createProduct(toEntity(request), request.getUserId()));
     }
 
     // PUT /api/products/{id} - 수정
     @PutMapping("/{id}")
     public ProductResponse updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
-        return productService.updateProduct(id, toEntity(request)).map(this::toResponse).orElse(null);
+        return productService.updateProduct(id, toEntity(request), request.getUserId())
+                .map(this::toResponse)
+                .orElse(null);
     }
 
     // DELETE /api/products/{id} - 삭제
@@ -87,6 +105,10 @@ public class ProductController {
         response.setStatus(product.getStatus());
         response.setDescription(product.getDescription());
         response.setDisplayLabel(product.getDisplayLabel());
+        if (product.getUser() != null) {
+            response.setUserId(product.getUser().getId());
+            response.setUserName(product.getUser().getName());
+        }
         return response;
     }
 }
