@@ -1,17 +1,22 @@
 package com.sk.skala.myapp.service;
 
 import com.sk.skala.myapp.domain.User;
+import com.sk.skala.myapp.dto.UserRequest;
 import com.sk.skala.myapp.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Optional;
 
 // Configuration 기반 수동 Proxy 대신, MetricsAspect(@Aspect/@Around)가 시간 측정을 대신하므로
 // 다시 컴포넌트 스캔으로 등록되는 평범한 @Service Bean으로 되돌린다.
+// @Validated: createUser/updateUser의 @Valid UserRequest 파라미터를 AOP Proxy로 검증
 @Slf4j
 @Service
+@Validated
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -41,20 +46,23 @@ public class UserServiceImpl implements UserService {
 
     // 사용자 추가
     @Override
-    public User createUser(User user) {
+    public User createUser(@Valid UserRequest request) {
         log.info("createUser service called");
-        log.debug("saving user: {}", user);
+        log.debug("saving user: {}", request);
+        User user = new User();
+        user.setName(request.name());
+        user.setEmail(request.email());
         return userRepository.save(user);
     }
 
     // 사용자 정보 수정
     @Override
-    public Optional<User> updateUser(long id, User updatedUser) {
+    public Optional<User> updateUser(long id, @Valid UserRequest request) {
         log.info("updateUser service called");
-        log.debug("updating user id: {}, payload: {}", id, updatedUser);
+        log.debug("updating user id: {}, payload: {}", id, request);
         return userRepository.findById(id).map(user -> {
-            user.setName(updatedUser.getName());
-            user.setEmail(updatedUser.getEmail());
+            user.setName(request.name());
+            user.setEmail(request.email());
             return userRepository.save(user);
         });
     }
