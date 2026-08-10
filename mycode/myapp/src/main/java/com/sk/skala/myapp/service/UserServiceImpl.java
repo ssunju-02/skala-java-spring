@@ -3,13 +3,15 @@ package com.sk.skala.myapp.service;
 import com.sk.skala.myapp.domain.User;
 import com.sk.skala.myapp.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-// @Service를 comment out: UserServiceConfig에서 Proxy로 감싸서 수동으로 Bean 등록하기 때문에
-// 자동 컴포넌트 스캔으로 등록되면 Bean이 중복(Impl 본체 + Proxy)되므로 꺼둔다.
+// Configuration 기반 수동 Proxy 대신, MetricsAspect(@Aspect/@Around)가 시간 측정을 대신하므로
+// 다시 컴포넌트 스캔으로 등록되는 평범한 @Service Bean으로 되돌린다.
 @Slf4j
+@Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;

@@ -1,5 +1,6 @@
 package com.sk.skala.myapp.controller;
 
+import com.sk.skala.myapp.aspect.Metrics;
 import com.sk.skala.myapp.domain.User;
 import com.sk.skala.myapp.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ public class UserController {
     }
 
     // GET: 특정 사용자 조회 (/api/users/{id})
+    @Metrics
     @GetMapping("/users/{id}")
     public User getUserById(@PathVariable long id) {
         log.info("getUserById called");
